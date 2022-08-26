@@ -70,7 +70,7 @@ fun ProductListScreen() {
                 linkTo(rowList.bottom, columnList.top)
             }
             .padding(horizontal = 8.dp))
-        ColomnList(modifier = Modifier
+        ColumnList(modifier = Modifier
             .fillMaxWidth()
             .constrainAs(columnList) {
                 linkTo(parent.start, parent.end)
@@ -81,7 +81,7 @@ fun ProductListScreen() {
 }
 
 @Composable
-fun ColomnList(modifier: Modifier) {
+fun ColumnList(modifier: Modifier) {
     LazyColumn(modifier = modifier,
         content = {
             item {
