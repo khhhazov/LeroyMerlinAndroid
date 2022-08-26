@@ -1,9 +1,9 @@
 package com.example.leroymerlin.presentation.screens
 
-import android.icu.text.CaseMap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.example.leroymerlin.R
 import com.example.leroymerlin.presentation.theme.*
 
@@ -24,7 +25,14 @@ import com.example.leroymerlin.presentation.theme.*
 @Composable
 fun ProductListScreen() {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (toolBar, lazyRow, filter, lazyColumn) = createRefs()
+        val (toolBar, rowList, filter, columnList) = createRefs()
+        createVerticalChain(
+            toolBar,
+            rowList,
+            filter,
+            columnList,
+            chainStyle = ChainStyle.Packed)
+
         TopAppBar(
             backgroundColor = Color.Transparent,
             modifier = Modifier
@@ -32,7 +40,7 @@ fun ProductListScreen() {
                 .height(56.dp)
                 .constrainAs(toolBar) {
                     linkTo(parent.start, parent.end)
-                    linkTo(parent.top, lazyRow.top)
+                    linkTo(parent.top, rowList.top, bias = 0f)
                 },
             elevation = 0.dp,
             title = {
@@ -46,17 +54,50 @@ fun ProductListScreen() {
                         fontWeight = FontWeight.Medium)
                 }
             })
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(88.dp)
-                .constrainAs(lazyRow) {
-                    linkTo(parent.start, parent.end)
-                    linkTo(toolBar.bottom, filter.top)
-                }
-                .padding(vertical = 8.dp),
-            contentPadding = PaddingValues(start = 16.dp),
-            content = {
+        RowList(modifier = Modifier
+            .fillMaxWidth()
+            .height(88.dp)
+            .constrainAs(rowList) {
+                linkTo(parent.start, parent.end)
+                linkTo(toolBar.bottom, filter.top)
+            }
+            .padding(vertical = 8.dp),)
+        FiltersToolBar(modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .constrainAs(filter) {
+                linkTo(parent.start, parent.end)
+                linkTo(rowList.bottom, columnList.top)
+            }
+            .padding(horizontal = 8.dp))
+        ColomnList(modifier = Modifier
+            .fillMaxWidth()
+            .constrainAs(columnList) {
+                linkTo(parent.start, parent.end)
+                linkTo(filter.bottom, parent.bottom)
+                height = Dimension.fillToConstraints
+            })
+    }
+}
+
+@Composable
+fun ColomnList(modifier: Modifier) {
+    LazyColumn(modifier = modifier,
+        content = {
+            item {
+                CategoriesRowItem()
+            }
+            item {
+                CategoriesRowItem()
+            }
+        })
+}
+
+@Composable
+fun RowList(modifier: Modifier) {
+    LazyRow(modifier = modifier,
+        contentPadding = PaddingValues(start = 16.dp),
+        content = {
             item {
                 CategoriesRowItem()
             }
@@ -70,14 +111,6 @@ fun ProductListScreen() {
                 CategoriesRowItem()
             }
         })
-        FiltersToolBar(modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .constrainAs(filter) {
-                linkTo(parent.start, parent.end)
-                linkTo(lazyRow.bottom, lazyColumn.top)
-            }.padding(horizontal = 8.dp))
-    }
 }
 
 @Composable
@@ -137,8 +170,7 @@ fun CategoriesRowItem() {
         }
     ) {
         ConstraintLayout(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxSize()
             .background(CardBackground)) {
             val (image, text) = createRefs()
             Box(modifier = Modifier
