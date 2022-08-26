@@ -1,4 +1,4 @@
-package com.example.leroymerlin.presentation.ui.theme
+package com.example.leroymerlin.presentation.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

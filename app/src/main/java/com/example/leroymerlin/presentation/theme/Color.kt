@@ -1,4 +1,4 @@
-package com.example.leroymerlin.presentation.ui.theme
+package com.example.leroymerlin.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -15,3 +15,4 @@ val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 val TextPrimary = Color(0xFF333333)
 val IconPrimary = Color(0xFF333333)
+val CardBackground = Color(0xFFF2F3F5)
