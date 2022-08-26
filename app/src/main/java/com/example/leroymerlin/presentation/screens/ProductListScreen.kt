@@ -2,12 +2,14 @@ package com.example.leroymerlin.presentation.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -81,14 +83,98 @@ fun ProductListScreen() {
 }
 
 @Composable
+fun ProductColumnItem() {
+    ConstraintLayout(modifier = Modifier
+        .clickable {
+
+        }
+        .padding(16.dp)
+        .fillMaxWidth()
+        .wrapContentHeight()) {
+        val (image, info) = createRefs()
+        Image(painter = painterResource(id = R.drawable.im_product),
+            contentDescription = null,
+            modifier = Modifier
+                .requiredSize(92.dp)
+                .constrainAs(image) {
+                    linkTo(parent.start, info.start)
+                    linkTo(parent.top, parent.bottom, bias = 0f)
+                })
+        Column(modifier = Modifier
+            .wrapContentHeight()
+            .padding(start = 16.dp)
+            .constrainAs(info) {
+                linkTo(image.end, parent.end)
+                linkTo(parent.top, parent.bottom)
+                width = Dimension.fillToConstraints
+            }) {
+            Text(text = "Шпаклёвка готовая финишная Danogips SuperFinish 18.1 кг",
+                color = TextPrimary,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                letterSpacing = 0.25.sp,
+                fontSize = 14.sp)
+            Row(verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 3.dp)) {
+                Icon(painter = painterResource(id = R.drawable.ic_stars),
+                    contentDescription = null,
+                    tint = Color(0xFFF4BE55))
+                Text(text = "(62)",
+                    color = TextSecondary,
+                    modifier = Modifier.padding(start = 6.dp),
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    letterSpacing = 0.2.sp,
+                    fontSize = 12.sp)
+            }
+            Text(text = "1 155 ₽ / шт.",
+                color = TextPrimary,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.15.sp,
+                fontSize = 16.sp)
+            Text(text = "77 ₽ / шт.",
+                color = TextMinor,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                letterSpacing = 0.2.sp,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(bottom = 3.dp))
+            Row(verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween) {
+                Button(
+                    colors = ButtonDefaults.buttonColors(backgroundColor = ButtonMinor),
+                    onClick = {
+                    /*TODO*/
+                    }
+                ) {
+                    Text(text = "В корзину",
+                        color = TextPrimary,
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 0.25.sp,
+                        fontSize = 14.sp)
+                }
+//                IconToggleButton(
+//                    checked = ,
+//                    onCheckedChange =
+//                ) {
+//
+//                }
+            }
+        }
+    }
+}
+
+@Composable
 fun ColumnList(modifier: Modifier) {
     LazyColumn(modifier = modifier,
         content = {
             item {
-                CategoriesRowItem()
+                ProductColumnItem()
             }
             item {
-                CategoriesRowItem()
+                ProductColumnItem()
             }
         })
 }
