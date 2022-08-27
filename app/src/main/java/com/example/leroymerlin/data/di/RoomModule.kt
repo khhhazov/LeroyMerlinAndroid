@@ -21,5 +21,7 @@ class RoomModule {
             context,
             OnlineStoreRoomDataBase::class.java,
             "online_store"
-        ).build()
+        )
+            .createFromAsset("online_store.db")
+            .build()
 }

@@ -29,9 +29,9 @@ class ProductViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            productListRepository.initDataBase(defaultListProduct())
+            /*productListRepository.initDataBase(defaultListProduct())
             categoryListRepository.initDataBase(defaultListCategory())
-
+            */
             products.value = productListRepository.fetchProductList()
             categories.value = categoryListRepository.fetchProductList()
         }
