@@ -2,13 +2,13 @@ package com.example.leroymerlin.presentation.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,12 +21,16 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.leroymerlin.R
+import com.example.leroymerlin.data.product.list.room.dao.ProductListEntity
 import com.example.leroymerlin.presentation.theme.*
 
 @Preview(showBackground = true)
 @Composable
 fun ProductListScreen() {
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+    ConstraintLayout(modifier = Modifier
+        .fillMaxSize()
+        .background(White)
+    ) {
         val (toolBar, rowList, filter, columnList) = createRefs()
         createVerticalChain(
             toolBar,
@@ -36,7 +40,7 @@ fun ProductListScreen() {
             chainStyle = ChainStyle.Packed)
 
         TopAppBar(
-            backgroundColor = Color.Transparent,
+            backgroundColor = White,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
@@ -63,7 +67,7 @@ fun ProductListScreen() {
                 linkTo(parent.start, parent.end)
                 linkTo(toolBar.bottom, filter.top)
             }
-            .padding(vertical = 8.dp),)
+            .padding(vertical = 8.dp))
         FiltersToolBar(modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
@@ -82,85 +86,93 @@ fun ProductListScreen() {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProductColumnItem() {
-    ConstraintLayout(modifier = Modifier
-        .clickable {
+    Card(modifier = Modifier.wrapContentSize(),
+        shape = RoundedCornerShape(0.dp),
+        onClick = {
 
         }
-        .padding(16.dp)
-        .fillMaxWidth()
-        .wrapContentHeight()) {
-        val (image, info) = createRefs()
-        Image(painter = painterResource(id = R.drawable.im_product),
-            contentDescription = null,
-            modifier = Modifier
-                .requiredSize(92.dp)
-                .constrainAs(image) {
-                    linkTo(parent.start, info.start)
-                    linkTo(parent.top, parent.bottom, bias = 0f)
-                })
-        Column(modifier = Modifier
-            .wrapContentHeight()
-            .padding(start = 16.dp)
-            .constrainAs(info) {
-                linkTo(image.end, parent.end)
-                linkTo(parent.top, parent.bottom)
-                width = Dimension.fillToConstraints
-            }) {
-            Text(text = "Шпаклёвка готовая финишная Danogips SuperFinish 18.1 кг",
-                color = TextPrimary,
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                letterSpacing = 0.25.sp,
-                fontSize = 14.sp)
-            Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 3.dp)) {
-                Icon(painter = painterResource(id = R.drawable.ic_stars),
-                    contentDescription = null,
-                    tint = Color(0xFFF4BE55))
-                Text(text = "(62)",
-                    color = TextSecondary,
-                    modifier = Modifier.padding(start = 6.dp),
+    ) {
+        ConstraintLayout(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()) {
+            val (image, info) = createRefs()
+            Image(painter = painterResource(id = R.drawable.im_product),
+                contentDescription = null,
+                modifier = Modifier
+                    .requiredSize(92.dp)
+                    .constrainAs(image) {
+                        linkTo(parent.start, info.start)
+                        linkTo(parent.top, parent.bottom, bias = 0f)
+                    })
+            Column(modifier = Modifier
+                .wrapContentHeight()
+                .padding(start = 16.dp)
+                .constrainAs(info) {
+                    linkTo(image.end, parent.end)
+                    linkTo(parent.top, parent.bottom)
+                    width = Dimension.fillToConstraints
+                }) {
+                Text(text = "Шпаклёвка готовая финишная Danogips SuperFinish 18.1 кг",
+                    color = TextPrimary,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    letterSpacing = 0.25.sp,
+                    fontSize = 14.sp)
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 4.dp, top = 3.dp)) {
+                    Icon(painter = painterResource(id = R.drawable.ic_stars),
+                        contentDescription = null,
+                        tint = Color(0xFFF4BE55))
+                    Text(text = "(62)",
+                        color = TextSecondary,
+                        modifier = Modifier.padding(start = 6.dp),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        letterSpacing = 0.2.sp,
+                        fontSize = 12.sp)
+                }
+                Text(text = "1 155 ₽ / шт.",
+                    color = TextPrimary,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.15.sp,
+                    fontSize = 16.sp)
+                Text(text = "77 ₽ / шт.",
+                    color = TextMinor,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Normal,
                     letterSpacing = 0.2.sp,
-                    fontSize = 12.sp)
-            }
-            Text(text = "1 155 ₽ / шт.",
-                color = TextPrimary,
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.15.sp,
-                fontSize = 16.sp)
-            Text(text = "77 ₽ / шт.",
-                color = TextMinor,
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                letterSpacing = 0.2.sp,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 3.dp))
-            Row(verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-                Button(
-                    colors = ButtonDefaults.buttonColors(backgroundColor = ButtonMinor),
-                    onClick = {
-                    /*TODO*/
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(bottom = 12.dp))
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Button(
+                        modifier = Modifier
+                            .requiredHeight(40.dp)
+                            .requiredWidth(108.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ButtonMinor),
+                        onClick = {
+                            /*TODO*/
+                        }
+                    ) {
+                        Text(text = "В корзину",
+                            color = TextPrimary,
+                            fontFamily = robotoFontFamily,
+                            fontWeight = FontWeight.Medium,
+                            letterSpacing = 0.25.sp,
+                            fontSize = 14.sp)
                     }
-                ) {
-                    Text(text = "В корзину",
-                        color = TextPrimary,
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 0.25.sp,
-                        fontSize = 14.sp)
-                }
 //                IconToggleButton(
 //                    checked = ,
 //                    onCheckedChange =
 //                ) {
 //
 //                }
+                }
             }
         }
     }
@@ -169,7 +181,19 @@ fun ProductColumnItem() {
 @Composable
 fun ColumnList(modifier: Modifier) {
     LazyColumn(modifier = modifier,
+        contentPadding = PaddingValues(top = 8.dp),
         content = {
+//            productList.forEach {
+//                item {
+//                    ProductColumnItem(product = it)
+//                }
+//            }
+            item {
+                ProductColumnItem()
+            }
+            item {
+                ProductColumnItem()
+            }
             item {
                 ProductColumnItem()
             }

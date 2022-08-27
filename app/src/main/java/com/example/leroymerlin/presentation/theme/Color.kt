@@ -8,7 +8,7 @@ val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
 
 /*personalized colors for the theme*/
-val Primary = Color(0xFFE8E9EB)
+val Primary = Color(0xFF000000)
 val PrimaryVariant = Color(0xFFFFFFFF)
 
 val White = Color(0xFFFFFFFF)
