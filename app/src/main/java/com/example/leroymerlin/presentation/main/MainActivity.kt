@@ -21,9 +21,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val products = productViewModel.products.value
+            val categories = productViewModel.categories.value
 
             products.forEach {
                 Log.i("products", it.name.toString())
+            }
+            categories.forEach {
+                Log.i("categories", it.name.toString())
             }
 
             LeroyMerlinTheme {

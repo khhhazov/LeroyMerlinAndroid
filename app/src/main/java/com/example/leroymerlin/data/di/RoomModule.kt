@@ -2,7 +2,7 @@ package com.example.leroymerlin.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.leroymerlin.data.base.ProductRoomDataBase
+import com.example.leroymerlin.data.base.OnlineStoreRoomDataBase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +19,7 @@ class RoomModule {
     fun provideDataBase(@ApplicationContext context: Context) =
         Room.databaseBuilder(
             context,
-            ProductRoomDataBase::class.java,
+            OnlineStoreRoomDataBase::class.java,
             "online_store"
         ).build()
 }
