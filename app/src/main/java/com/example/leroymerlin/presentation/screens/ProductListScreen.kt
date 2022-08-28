@@ -1,5 +1,7 @@
 package com.example.leroymerlin.presentation.screens
 
+import android.content.Context
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,25 +10,42 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.leroymerlin.R
+import com.example.leroymerlin.data.categories.list.room.dao.CategoryListEntity
 import com.example.leroymerlin.data.product.list.room.dao.ProductListEntity
 import com.example.leroymerlin.presentation.theme.*
+import kotlin.math.roundToInt
 
-@Preview(showBackground = true)
+/*реализация прокрутки раздела категорий имеет баг с размером LazyColumn,
+  из-за чего она не вошла в финальную версию.
+  файл находиться в дериктории screens/bugs и называется "RowListScrollingRealization.kt"
+  */
+
 @Composable
-fun ProductListScreen() {
+fun ProductListScreen(
+    products: List<ProductListEntity>,
+    categories: List<CategoryListEntity>,
+    context: Context
+) {
     ConstraintLayout(modifier = Modifier
         .fillMaxSize()
         .background(White)
@@ -38,7 +57,6 @@ fun ProductListScreen() {
             filter,
             columnList,
             chainStyle = ChainStyle.Packed)
-
         TopAppBar(
             backgroundColor = White,
             modifier = Modifier
@@ -62,14 +80,18 @@ fun ProductListScreen() {
             })
         RowList(modifier = Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
             .height(88.dp)
             .constrainAs(rowList) {
                 linkTo(parent.start, parent.end)
                 linkTo(toolBar.bottom, filter.top)
             }
-            .padding(vertical = 8.dp))
+            .padding(vertical = 8.dp),
+            categories = categories,
+            context = context)
         FiltersToolBar(modifier = Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
             .height(56.dp)
             .constrainAs(filter) {
                 linkTo(parent.start, parent.end)
@@ -82,13 +104,17 @@ fun ProductListScreen() {
                 linkTo(parent.start, parent.end)
                 linkTo(filter.bottom, parent.bottom)
                 height = Dimension.fillToConstraints
-            })
+            },
+            products = products,
+            context = context)
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProductColumnItem() {
+fun ProductColumnItem(product: ProductListEntity, context: Context) {
+    val ims = context.assets.open(product.imageUrl.toString())
+    val bitmap = BitmapFactory.decodeStream(ims)
     Card(modifier = Modifier.wrapContentSize(),
         shape = RoundedCornerShape(0.dp),
         onClick = {
@@ -100,7 +126,7 @@ fun ProductColumnItem() {
             .fillMaxWidth()
             .wrapContentHeight()) {
             val (image, info) = createRefs()
-            Image(painter = painterResource(id = R.drawable.im_product),
+            Image(bitmap = bitmap.asImageBitmap(),
                 contentDescription = null,
                 modifier = Modifier
                     .requiredSize(92.dp)
@@ -116,7 +142,7 @@ fun ProductColumnItem() {
                     linkTo(parent.top, parent.bottom)
                     width = Dimension.fillToConstraints
                 }) {
-                Text(text = "Шпаклёвка готовая финишная Danogips SuperFinish 18.1 кг",
+                Text(text = product.name.toString(),
                     color = TextPrimary,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Normal,
@@ -179,97 +205,84 @@ fun ProductColumnItem() {
 }
 
 @Composable
-fun ColumnList(modifier: Modifier) {
+fun ColumnList(modifier: Modifier, products: List<ProductListEntity>, context: Context) {
     LazyColumn(modifier = modifier,
         contentPadding = PaddingValues(top = 8.dp),
         content = {
-//            productList.forEach {
-//                item {
-//                    ProductColumnItem(product = it)
-//                }
-//            }
-            item {
-                ProductColumnItem()
-            }
-            item {
-                ProductColumnItem()
-            }
-            item {
-                ProductColumnItem()
-            }
-            item {
-                ProductColumnItem()
+            products.forEach {
+                item {
+                    ProductColumnItem(product = it, context)
+                }
             }
         })
 }
 
 @Composable
-fun RowList(modifier: Modifier) {
+fun RowList(modifier: Modifier, categories: List<CategoryListEntity>, context: Context) {
     LazyRow(modifier = modifier,
         contentPadding = PaddingValues(start = 16.dp),
         content = {
-            item {
-                CategoriesRowItem()
-            }
-            item {
-                CategoriesRowItem()
-            }
-            item {
-                CategoriesRowItem()
-            }
-            item {
-                CategoriesRowItem()
+            categories.forEach {
+                item {
+                    CategoriesRowItem(category = it, context)
+                }
             }
         })
 }
 
 @Composable
 fun FiltersToolBar(modifier: Modifier) {
-    ConstraintLayout(modifier = modifier) {
-        val (sort, filter) = createRefs()
-        createHorizontalChain(sort, filter, chainStyle = ChainStyle.SpreadInside)
-        TextButton(
-            onClick = {
-            /*TODO*/
-            },
-            modifier = Modifier.constrainAs(sort) {
-                linkTo(parent.start, filter.start)
-                linkTo(parent.top, parent.bottom)
+    Box(modifier = modifier) {
+        ConstraintLayout(modifier = Modifier
+            .height(56.dp)
+            .fillMaxWidth()) {
+            val (sort, filter) = createRefs()
+            createHorizontalChain(sort, filter, chainStyle = ChainStyle.SpreadInside)
+            TextButton(
+                onClick = {
+                    /*TODO*/
+                },
+                modifier = Modifier.constrainAs(sort) {
+                    linkTo(parent.start, filter.start)
+                    linkTo(parent.top, parent.bottom)
+                }
+            ) {
+                Icon(painter = painterResource(id = R.drawable.ic_sort),
+                    contentDescription = null,
+                    tint = IconPrimary)
+                Text(text = "Цена по возростанию",
+                    color = TextPrimary,
+                    fontSize = 14.sp,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    letterSpacing = 0.25.sp)
             }
-        ) {
-            Icon(painter = painterResource(id = R.drawable.ic_sort),
-                contentDescription = null,
-                tint = IconPrimary)
-            Text(text = "Цена по возростанию",
-                color = TextPrimary,
-                fontSize = 14.sp,
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                letterSpacing = 0.25.sp)
-        }
-        TextButton(
-            onClick = {
-                /*TODO*/
-            }, modifier = Modifier.constrainAs(filter) {
-                linkTo(sort.end, parent.end)
-                linkTo(parent.top, parent.bottom)
-            }) {
-            Icon(painter = painterResource(id = R.drawable.ic_filters),
-                contentDescription = null,
-                tint = IconPrimary)
-            Text(text = "Фильтры",
-                color = TextPrimary,
-                fontSize = 14.sp,
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                letterSpacing = 0.25.sp)
+            TextButton(
+                onClick = {
+                    /*TODO*/
+                }, modifier = Modifier.constrainAs(filter) {
+                    linkTo(sort.end, parent.end)
+                    linkTo(parent.top, parent.bottom)
+                }) {
+                Icon(painter = painterResource(id = R.drawable.ic_filters),
+                    contentDescription = null,
+                    tint = IconPrimary)
+                Text(text = "Фильтры",
+                    color = TextPrimary,
+                    fontSize = 14.sp,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    letterSpacing = 0.25.sp)
+            }
         }
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CategoriesRowItem() {
+fun CategoriesRowItem(category: CategoryListEntity, context: Context) {
+    val ims = context.assets.open(category.imageUrl.toString())
+    val bitmap = BitmapFactory.decodeStream(ims)
     Card(
         modifier = Modifier
             .wrapContentSize()
@@ -280,7 +293,9 @@ fun CategoriesRowItem() {
         }
     ) {
         ConstraintLayout(modifier = Modifier
-            .fillMaxSize()
+            .requiredHeight(72.dp)
+            .wrapContentWidth()
+//            .fillMaxSize()
             .background(CardBackground)) {
             val (image, text) = createRefs()
             Box(modifier = Modifier
@@ -294,10 +309,10 @@ fun CategoriesRowItem() {
                 Image(
                     modifier = Modifier
                         .requiredSize(48.dp),
-                    painter = painterResource(id = R.drawable.im_categories),
+                    bitmap = bitmap.asImageBitmap(),
                     contentDescription = null)
             }
-            Text(text = "Шпаклевки\nбазовые",
+            Text(text = category.name.toString(),
                 color = TextPrimary,
                 fontSize = 12.sp,
                 fontFamily = robotoFontFamily,

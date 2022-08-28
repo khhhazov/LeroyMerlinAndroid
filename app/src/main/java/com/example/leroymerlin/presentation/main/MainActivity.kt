@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
             products.forEach {
                 Log.i("products", it.name.toString())
             }
+
             categories.forEach {
                 Log.i("categories", it.name.toString())
             }
@@ -36,7 +37,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    ProductListScreen()
+                    ProductListScreen(products, categories, this)
                 }
             }
         }
