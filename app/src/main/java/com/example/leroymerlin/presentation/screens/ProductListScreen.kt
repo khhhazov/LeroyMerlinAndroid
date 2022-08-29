@@ -35,6 +35,10 @@ import com.example.leroymerlin.presentation.theme.*
   файл находиться в дериктории screens/bugs и называется "RowListScrollingRealization.kt"
   */
 
+/*при запуске приложения имеется баг, когда ProductInfoScreen открывается пустым.
+  баг пропадает если нажать на одну из кнопок bottom_menu
+  */
+
 @Composable
 fun ProductListScreen(
     context: Context,
