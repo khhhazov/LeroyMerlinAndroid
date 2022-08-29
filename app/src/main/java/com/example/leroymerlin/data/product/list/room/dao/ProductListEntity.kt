@@ -1,13 +1,15 @@
 package com.example.leroymerlin.data.product.list.room.dao
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.example.leroymerlin.data.product.list.room.dao.ProductListEntity.Companion.TABLE_NAME
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 @Entity(tableName = TABLE_NAME)
-class ProductListEntity() {
+class ProductListEntity() : Parcelable {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo (name = "productId")
     var id: Int? = null

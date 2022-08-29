@@ -9,31 +9,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.core.os.bundleOf
+import androidx.navigation.NavController
 import com.example.leroymerlin.R
 import com.example.leroymerlin.data.categories.list.room.dao.CategoryListEntity
 import com.example.leroymerlin.data.product.list.room.dao.ProductListEntity
+import com.example.leroymerlin.presentation.main.ProductViewModel
+import com.example.leroymerlin.presentation.navigation.navigate
 import com.example.leroymerlin.presentation.theme.*
-import kotlin.math.roundToInt
 
 /*реализация прокрутки раздела категорий имеет баг с размером LazyColumn,
   из-за чего она не вошла в финальную версию.
@@ -42,13 +37,17 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ProductListScreen(
-    products: List<ProductListEntity>,
-    categories: List<CategoryListEntity>,
-    context: Context
+    context: Context,
+    viewModel: ProductViewModel,
+    navController: NavController
 ) {
+    val products = viewModel.products.value
+    val categories = viewModel.categories.value
+
     ConstraintLayout(modifier = Modifier
         .fillMaxSize()
         .background(White)
+        .padding(bottom = 56.dp)
     ) {
         val (toolBar, rowList, filter, columnList) = createRefs()
         createVerticalChain(
@@ -106,19 +105,26 @@ fun ProductListScreen(
                 height = Dimension.fillToConstraints
             },
             products = products,
-            context = context)
+            context = context,
+            navController = navController,
+            viewModel = viewModel)
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProductColumnItem(product: ProductListEntity, context: Context) {
+fun ProductColumnItem(
+    product: ProductListEntity,
+    context: Context,
+    navController: NavController,
+    viewModel: ProductViewModel
+) {
     val ims = context.assets.open(product.imageUrl.toString())
     val bitmap = BitmapFactory.decodeStream(ims)
     Card(modifier = Modifier.wrapContentSize(),
         shape = RoundedCornerShape(0.dp),
         onClick = {
-
+            navController.navigate("info", bundleOf("product" to product))
         }
     ) {
         ConstraintLayout(modifier = Modifier
@@ -182,7 +188,13 @@ fun ProductColumnItem(product: ProductListEntity, context: Context) {
                             .requiredWidth(108.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = ButtonMinor),
                         onClick = {
-                            /*TODO*/
+                            val setOfProduct: HashSet<ProductListEntity> = viewModel.setOfProduct
+                            if (setOfProduct.add(product)) {
+                                viewModel.cartProduct.value = setOfProduct
+                            } else {
+                                setOfProduct.remove(product)
+                                viewModel.cartProduct.value = setOfProduct
+                            }
                         }
                     ) {
                         Text(text = "В корзину",
@@ -192,12 +204,13 @@ fun ProductColumnItem(product: ProductListEntity, context: Context) {
                             letterSpacing = 0.25.sp,
                             fontSize = 14.sp)
                     }
-//                IconToggleButton(
-//                    checked = ,
-//                    onCheckedChange =
-//                ) {
-//
-//                }
+                /*IconToggleButton(
+                    checked = ,
+                    onCheckedChange =
+                ) {
+
+                }
+                */
                 }
             }
         }
@@ -205,13 +218,19 @@ fun ProductColumnItem(product: ProductListEntity, context: Context) {
 }
 
 @Composable
-fun ColumnList(modifier: Modifier, products: List<ProductListEntity>, context: Context) {
+fun ColumnList(
+    modifier: Modifier,
+    products: List<ProductListEntity>,
+    context: Context,
+    navController: NavController,
+    viewModel: ProductViewModel
+) {
     LazyColumn(modifier = modifier,
         contentPadding = PaddingValues(top = 8.dp),
         content = {
             products.forEach {
                 item {
-                    ProductColumnItem(product = it, context)
+                    ProductColumnItem(product = it, context, navController, viewModel)
                 }
             }
         })
@@ -326,23 +345,3 @@ fun CategoriesRowItem(category: CategoryListEntity, context: Context) {
         }
     }
 }
-
-/*@Composable
-fun TitleToolBar(modifier: Modifier) {
-    ConstraintLayout(modifier = modifier
-        .padding(horizontal = 24.dp)
-    ) {
-        val (text) = createRefs()
-        Text(text = "Шпаклевки",
-            modifier = Modifier.constrainAs(text) {
-            linkTo(parent.top, parent.bottom)
-            linkTo(parent.start, parent.end, bias = 0f)
-        },
-            color = Black,
-            fontSize = 20.sp,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
-*/

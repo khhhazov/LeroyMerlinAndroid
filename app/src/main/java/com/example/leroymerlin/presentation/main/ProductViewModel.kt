@@ -5,10 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.leroymerlin.data.categories.list.CategoryListRepository
-import com.example.leroymerlin.data.categories.list.defaultListCategory
 import com.example.leroymerlin.data.categories.list.room.dao.CategoryListEntity
 import com.example.leroymerlin.data.product.list.ProductListRepository
-import com.example.leroymerlin.data.product.list.defaultListProduct
 import com.example.leroymerlin.data.product.list.room.dao.ProductListEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -27,6 +25,9 @@ class ProductViewModel @Inject constructor(
     val products: LiveData<ArrayList<ProductListEntity>> get() = _products
     */
 
+    val cartProduct: MutableState<Set<ProductListEntity>> = mutableStateOf(setOf())
+    val setOfProduct: HashSet<ProductListEntity> = HashSet()
+
     init {
         viewModelScope.launch {
             /*productListRepository.initDataBase(defaultListProduct())
@@ -35,5 +36,6 @@ class ProductViewModel @Inject constructor(
             products.value = productListRepository.fetchProductList()
             categories.value = categoryListRepository.fetchProductList()
         }
+        cartProduct.value = setOfProduct
     }
 }

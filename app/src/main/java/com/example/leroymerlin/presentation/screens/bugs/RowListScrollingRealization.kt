@@ -1,3 +1,4 @@
+/*
 package com.example.leroymerlin.presentation.screens.bugs
 
 import android.content.Context
@@ -101,4 +102,4 @@ fun ProductListScreenWithScroll(
                 }
             })
     }
-}
+}*/
